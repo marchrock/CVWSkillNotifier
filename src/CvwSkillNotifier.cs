@@ -7,6 +7,7 @@ using Grabacr07.KanColleViewer.Composition;
 using Grabacr07.KanColleWrapper;
 using Grabacr07.KanColleWrapper.Models;
 using Grabacr07.KanColleWrapper.Models.Raw;
+using Reactive.Bindings.Extensions;
 
 namespace CvwSkillNotifier
 {
@@ -16,11 +17,12 @@ namespace CvwSkillNotifier
     [ExportMetadata("Guid", "0FDACB8C-8AD7-400D-9D0C-037CD86A330E")]
     [ExportMetadata("Title", "CVWSkillNotifier")]
     [ExportMetadata("Description", "艦上機/艦載機の熟練度が最大になった際に通知を行います。")]
-    [ExportMetadata("Version", "0.1.20150907")]
+    [ExportMetadata("Version", "1.0")]
     [ExportMetadata("Author", "@hgzr")]
     public class CvwSkillNotifier : IPlugin, IRequestNotify, INotifier
     {
         private List<CvWing> _cvWings;
+        private bool IsObservingItemyard { get; set; }
         
         public event EventHandler<NotifyEventArgs> NotifyRequested;
 
@@ -32,10 +34,14 @@ namespace CvwSkillNotifier
 
         public void PortSkillCheck()
         {
-            var slotItemData = KanColleClient.Current.Homeport.Itemyard.SlotItems.Values.Where((si) => si.Info.IsNumerable);
+            var slotItemData = KanColleClient.Current.Homeport.Itemyard.SlotItems.Values.Where(si => si.Info.IsNumerable);
             SkillNotifyCheck(slotItemData);
+
+            if (IsObservingItemyard || KanColleClient.Current?.Homeport?.Itemyard == null) return;
+            KanColleClient.Current?.Homeport?.Itemyard.ObserveProperty(x => x.SlotItems).Subscribe(x => SkillNotifyCheck(x.Values));
+            IsObservingItemyard = true;
         }
-        
+
         public void SkillNotifyCheck(IEnumerable<SlotItem> slotItemData )
         {
             var notifyIds = new List<int>();
@@ -43,7 +49,7 @@ namespace CvwSkillNotifier
             foreach (var currentCvWing in slotItemData.Select(slotItem => new CvWing {Id = slotItem.Id, Name = slotItem.Info.Name,
                 SkillLevel = slotItem.Adept, PreviousSkillLevel=slotItem.Adept, RowData = slotItem}))
             {
-                var cvWingIndex = _cvWings.FindIndex((cvw) => cvw.Id == currentCvWing.Id);
+                var cvWingIndex = _cvWings.FindIndex(cvw => cvw.Id == currentCvWing.Id);
                 if (cvWingIndex == -1)
                 {
                     _cvWings.Add(currentCvWing);
@@ -59,20 +65,18 @@ namespace CvwSkillNotifier
                 }
             }
 
-            if (notifyIds.Any())
+            if (!notifyIds.Any()) return;
+            string notifyBody;
+            if (notifyIds.Count == 1)
             {
-                string notifyBody;
-                if (notifyIds.Count == 1)
-                {
-                    notifyBody = _cvWings[notifyIds[0]].Name + "の熟練度が最大になりました。";
-                }
-                else
-                {
-                    notifyBody = notifyIds.Count.ToString() + "機の艦載機の熟練度が最大になりました。";
-                }
-
-                NotifyRequested?.Invoke(this, new NotifyEventArgs("CVWSkillNotify", "艦載機熟練度通知", notifyBody));
+                notifyBody = _cvWings[notifyIds[0]].Name + "の熟練度が最大になりました。";
             }
+            else
+            {
+                notifyBody = notifyIds.Count + "機の艦載機の熟練度が最大になりました。";
+            }
+
+            NotifyRequested?.Invoke(this, new NotifyEventArgs("CVWSkillNotify", "艦載機熟練度通知", notifyBody));
         }
 
         public void Notify(INotification notification)
