@@ -13,18 +13,17 @@ namespace CvwSkillNotifier
 {
     [Export(typeof(IPlugin))]
     [Export(typeof(IRequestNotify))]
-    [Export(typeof(INotifier))]
     [ExportMetadata("Guid", "0FDACB8C-8AD7-400D-9D0C-037CD86A330E")]
     [ExportMetadata("Title", "CVWSkillNotifier")]
     [ExportMetadata("Description", "艦上機/艦載機の熟練度が最大になった際に通知を行います。")]
-    [ExportMetadata("Version", "1.0")]
+    [ExportMetadata("Version", "1.1")]
     [ExportMetadata("Author", "@hgzr")]
-    public class CvwSkillNotifier : IPlugin, IRequestNotify, INotifier
+    public class CvwSkillNotifier : IPlugin, IRequestNotify
     {
         private List<CvWing> _cvWings;
         private bool IsObservingItemyard { get; set; }
         private IDisposable PortSubscribe { get; set; }
-        
+
         public event EventHandler<NotifyEventArgs> NotifyRequested;
 
         public void Initialize()
@@ -76,11 +75,6 @@ namespace CvwSkillNotifier
             }
 
             NotifyRequested?.Invoke(this, new NotifyEventArgs("CVWSkillNotify", "艦載機熟練度通知", notifyBody));
-        }
-
-        public void Notify(INotification notification)
-        {
-            Notification.Create(notification.Type, notification.Header, notification.Body);
         }
     }
 }
