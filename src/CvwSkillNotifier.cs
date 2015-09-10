@@ -23,23 +23,22 @@ namespace CvwSkillNotifier
     {
         private List<CvWing> _cvWings;
         private bool IsObservingItemyard { get; set; }
+        private IDisposable PortSubscribe { get; set; }
         
         public event EventHandler<NotifyEventArgs> NotifyRequested;
 
         public void Initialize()
         {
-            KanColleClient.Current.Proxy.api_port.TryParse<kcsapi_port>().Subscribe(x => PortSkillCheck());
+            PortSubscribe = KanColleClient.Current.Proxy.api_port.TryParse<kcsapi_port>().Subscribe(x => SubscribeSlotItemsAtPort());
             _cvWings = new List<CvWing>();
         }
 
-        public void PortSkillCheck()
+        public void SubscribeSlotItemsAtPort()
         {
-            var slotItemData = KanColleClient.Current.Homeport.Itemyard.SlotItems.Values.Where(si => si.Info.IsNumerable);
-            SkillNotifyCheck(slotItemData);
-
             if (IsObservingItemyard || KanColleClient.Current?.Homeport?.Itemyard == null) return;
             KanColleClient.Current?.Homeport?.Itemyard.ObserveProperty(x => x.SlotItems).Subscribe(x => SkillNotifyCheck(x.Values));
             IsObservingItemyard = true;
+            PortSubscribe.Dispose();
         }
 
         public void SkillNotifyCheck(IEnumerable<SlotItem> slotItemData )
