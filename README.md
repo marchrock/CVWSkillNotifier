@@ -4,6 +4,9 @@
 ## Requirement
 [KancolleViewer](https://github.com/Grabacr07/KanColleViewer)
 
+## Latest Build
+[![Build status](https://ci.appveyor.com/api/projects/status/3y0et0x1c5r86kg6/branch/master?svg=true)](https://ci.appveyor.com/project/TakHi/cvwskillnotifier/build/artifacts)
+
 ## Install
 * `ReactiveProperty.dll`, `ReactiveProperty.NET45.dll`, `ReactiveProperty.DataAnnotations.dll` を `KanColleViewer.exe` と同じディレクトリにコピーしてください。
 * `CvwSkillNotifier.dll` を KanColleViewer の Plugin フォルダにコピーしてください。
