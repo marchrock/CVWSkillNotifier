@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using CvwSkillNotifier.Model;
+using CvwSkillNotifier.Properties;
 using Grabacr07.KanColleViewer.Composition;
 using Grabacr07.KanColleWrapper;
 using Grabacr07.KanColleWrapper.Models;
@@ -44,7 +45,7 @@ namespace CvwSkillNotifier
         {
             var maxAdentIds = new List<int>();
             var zeroAdentIds = new List<int>();
-
+            
             foreach (var currentCvWing in slotItemData.Select(slotItem => new CvWing {Id = slotItem.Id, Name = slotItem.Info.Name,
                 SkillLevel = slotItem.Adept, PreviousSkillLevel=slotItem.Adept, RowData = slotItem}))
             {
@@ -73,20 +74,22 @@ namespace CvwSkillNotifier
             var notifyBody = "";
             if (maxAdentIds.Count == 1)
             {
-                notifyBody += _cvWings[maxAdentIds[0]].Name + "の熟練度が最大になりました。";
+                notifyBody += string.Format(Resources.MaxAdentSingleCvWing, _cvWings[maxAdentIds[0]].Name);
             }
             else if( maxAdentIds.Any() )
             {
-                notifyBody += maxAdentIds.Count + "機の艦載機の熟練度が最大になりました。";
+                notifyBody += string.Format(Resources.MaxAdentMultipleCvWing, maxAdentIds.Count);
             }
+
+            notifyBody += (maxAdentIds.Any() && zeroAdentIds.Any()) ? Environment.NewLine : "";
 
             if (zeroAdentIds.Count == 1)
             {
-                notifyBody += Environment.NewLine + _cvWings[zeroAdentIds[0]].Name + "が壊滅的打撃を受けましました。";
+                notifyBody += string.Format(Resources.ZeroAdentSingleCvWing, _cvWings[zeroAdentIds[0]].Name);
             }
             else if( zeroAdentIds.Any() )
             {
-                notifyBody += Environment.NewLine + zeroAdentIds.Count + "機の艦載機が壊滅的打撃を受けましました。";
+                notifyBody += string.Format(Resources.ZeroAdentMultipleCvWing, maxAdentIds.Count);
             }
 
             NotifyRequested?.Invoke(this, new NotifyEventArgs("CVWSkillNotify", "艦載機熟練度通知", notifyBody));
