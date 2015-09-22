@@ -89,7 +89,7 @@ namespace CvwSkillNotifier
             }
             else if( zeroAdentIds.Any() )
             {
-                notifyBody += string.Format(Resources.ZeroAdentMultipleCvWing, maxAdentIds.Count);
+                notifyBody += string.Format(Resources.ZeroAdentMultipleCvWing, zeroAdentIds.Count);
             }
 
             NotifyRequested?.Invoke(this, new NotifyEventArgs("CVWSkillNotify", "艦載機熟練度通知", notifyBody));
