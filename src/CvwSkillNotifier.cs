@@ -17,7 +17,7 @@ namespace CvwSkillNotifier
     [ExportMetadata("Guid", "0FDACB8C-8AD7-400D-9D0C-037CD86A330E")]
     [ExportMetadata("Title", "CVWSkillNotifier")]
     [ExportMetadata("Description", "艦上機/艦載機の熟練度の通知を行います。")]
-    [ExportMetadata("Version", "1.1.0")]
+    [ExportMetadata("Version", "1.1.1")]
     [ExportMetadata("Author", "@hgzr")]
     public class CvwSkillNotifier : IPlugin, IRequestNotify
     {
